@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "Nuevo perfil",
+    "Projects": [
+      {
+        "Path": "BSC.Api\\BSC.Api.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "BSC.UI\\BSC.UI.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

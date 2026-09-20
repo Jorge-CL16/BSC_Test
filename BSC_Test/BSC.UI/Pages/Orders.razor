@@ -1,0 +1,211 @@
+@page "/orders"
+@attribute [Authorize(Roles = "Administrator,AdministrativeStaff")]
+@using System.Net.Http.Json
+@using BSC.UI.Models
+@inject HttpClient Http
+
+<PageTitle>Historial de Pedidos | BSC Commerce</PageTitle>
+
+<div class="page-header">
+    <div>
+        <h1>
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="var(--purple-700)" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            Historial de Pedidos
+        </h1>
+        <p>Monitorea todas las transacciones de venta, estados de entrega y cancelaciones de órdenes.</p>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(actionMessage))
+{
+    <div class="alert @(actionMessage.Contains("correctamente") ? "alert-success" : "alert-danger")">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>@actionMessage</span>
+    </div>
+}
+
+@if (isLoading)
+{
+    <div class="card" style="text-align: center; padding: 3rem;">
+        <div class="loader-spinner" style="margin: 0 auto 1rem auto;"></div>
+        <p>Cargando lista de pedidos...</p>
+    </div>
+}
+else if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-danger">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>@errorMessage</span>
+    </div>
+}
+else
+{
+    <div class="card card-accent-purple">
+        <div class="card-header">
+            <div>
+                <h2>Órdenes Registradas (@orders.Count)</h2>
+                <p>Detalle por cliente, vendedor y artículos solicitados.</p>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>N° Orden</th>
+                        <th>Cliente</th>
+                        <th>Vendedor</th>
+                        <th>Fecha de Registro</th>
+                        <th>Estado</th>
+                        <th>Artículos</th>
+                        <th style="text-align: right;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (orders.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                                No se registran pedidos aún en la plataforma.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var order in orders)
+                    {
+                        <tr>
+                            <td>
+                                <strong style="color: var(--purple-700);">#@order.OrderId</strong>
+                            </td>
+                            <td>
+                                <strong style="color: var(--purple-950);">@order.CustomerName</strong>
+                            </td>
+                            <td>
+                                <span style="color: var(--text-muted);">@order.SalespersonName</span>
+                            </td>
+                            <td>
+                                @order.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                            </td>
+                            <td>
+                                @if (order.Status == "Confirmed")
+                                {
+                                    <span class="badge badge-success">
+                                        ● Confirmado
+                                    </span>
+                                }
+                                else if (order.Status == "Cancelled")
+                                {
+                                    <span class="badge badge-danger">
+                                        ● Cancelado
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-warning">
+                                        ● @GetStatusName(order.Status)
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge badge-purple">@order.TotalItems piezas</span>
+                            </td>
+                            <td style="text-align: right;">
+                                @if (order.Status == "Confirmed")
+                                {
+                                    <button type="button" class="btn btn-sm btn-danger" @onclick="() => CancelOrder(order.OrderId)">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="15" y1="9" x2="9" y2="15"></line>
+                                            <line x1="9" y1="9" x2="15" y2="15"></line>
+                                        </svg>
+                                        <span>Cancelar</span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span style="font-size: 0.8rem; color: var(--text-light);">Sin acciones</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+<style>
+    .page-header {
+        margin-bottom: 2rem;
+    }
+</style>
+
+@code {
+    private List<OrderSummaryDto> orders = [];
+    private bool isLoading = true;
+    private string? errorMessage;
+    private string? actionMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrders();
+    }
+
+    private async Task LoadOrders()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            orders = await Http.GetFromJsonAsync<List<OrderSummaryDto>>("api/orders") ?? [];
+        }
+        catch (Exception exception)
+        {
+            errorMessage = $"No fue posible cargar los pedidos: {exception.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task CancelOrder(int orderId)
+    {
+        actionMessage = null;
+
+        var response = await Http.PostAsync(
+            $"api/orders/{orderId}/cancel",
+            content: null);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            actionMessage = "No fue posible cancelar el pedido.";
+            return;
+        }
+
+        actionMessage = $"Pedido #{orderId} cancelado correctamente.";
+        await LoadOrders();
+    }
+
+    private static string GetStatusName(string status) => status switch
+    {
+        "Confirmed" => "Confirmado",
+        "Pending" => "Pendiente",
+        "Cancelled" => "Cancelado",
+        _ => status
+    };
+}

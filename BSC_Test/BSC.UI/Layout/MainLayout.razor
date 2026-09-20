@@ -1,15 +1,40 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
+
 <div class="page">
-    <div class="sidebar">
+    <aside class="sidebar">
         <NavMenu />
-    </div>
+    </aside>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <div class="store-badge">
+                    <span class="pulse-dot"></span>
+                    <span class="store-text">Tienda en Vivo • Ventas Online</span>
+                </div>
+            </div>
 
-        <article class="content px-4">
+            <div class="top-bar-right">
+                <AuthorizeView>
+                    <Authorized>
+                        <div class="user-profile-pill">
+                            <div class="user-avatar">
+                                @(context.User.Identity?.Name?.Length > 0 ? context.User.Identity.Name.Substring(0, 1).ToUpper() : "U")
+                            </div>
+                            <div class="user-details">
+                                <span class="user-name">@context.User.Identity?.Name</span>
+                                <span class="user-badge">Activo</span>
+                            </div>
+                        </div>
+                    </Authorized>
+                    <NotAuthorized>
+                        <a href="login" class="btn-login-link">Iniciar sesión</a>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+        </header>
+
+        <article class="content-container">
             @Body
         </article>
     </main>

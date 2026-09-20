@@ -1,0 +1,228 @@
+@page "/login"
+@using BSC.UI.Models
+@using BSC.UI.Services
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Iniciar Sesión | BSC Commerce</PageTitle>
+
+<div class="login-wrapper">
+    <div class="login-container">
+        <!-- Encabezado de la Tarjeta -->
+        <div class="login-header">
+            <div class="login-brand-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+            </div>
+            <h2>Bienvenido a BSC Commerce</h2>
+            <p>Ingresa tus credenciales para acceder al sistema de gestión de ventas.</p>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <div class="alert alert-danger">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span>@errorMessage</span>
+            </div>
+        }
+
+        <!-- Formulario de Acceso -->
+        <EditForm Model="model" OnValidSubmit="HandleLogin" class="login-form">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="validation-summary" />
+
+            <div class="form-group">
+                <label for="email">Correo Electrónico</label>
+                <div class="input-with-icon">
+                    <span class="field-icon">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                    </span>
+                    <InputText id="email" @bind-Value="model.Email" class="form-control" placeholder="ejemplo@bsc.com" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <div class="input-with-icon">
+                    <span class="field-icon">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </span>
+                    <InputText id="password" type="password" @bind-Value="model.Password" class="form-control" placeholder="••••••••" />
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-gold btn-block" disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <span class="btn-spinner"></span>
+                    <span>Iniciando sesión...</span>
+                }
+                else
+                {
+                    <span>Acceder a la Plataforma</span>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                }
+            </button>
+        </EditForm>
+        
+        <div class="login-footer">
+            <span>BSC Commerce © @DateTime.Now.Year — Acceso seguro empresarial</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .login-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 12rem);
+        padding: 1.5rem 0;
+    }
+
+    .login-container {
+        background: #ffffff;
+        border: 1px solid var(--border-card);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        width: 100%;
+        max-width: 460px;
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .login-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, var(--purple-700), var(--gold-400), var(--purple-600));
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .login-brand-icon {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto 1.25rem auto;
+        background: linear-gradient(135deg, var(--gold-400), var(--gold-300));
+        color: var(--purple-950);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-gold);
+    }
+
+    .login-brand-icon svg {
+        width: 30px;
+        height: 30px;
+    }
+
+    .login-header h2 {
+        color: var(--purple-950);
+        font-size: 1.55rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .login-header p {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .input-with-icon {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .field-icon {
+        position: absolute;
+        left: 1rem;
+        color: var(--purple-400);
+        display: flex;
+        align-items: center;
+        pointer-events: none;
+    }
+
+    .input-with-icon input {
+        padding-left: 2.85rem !important;
+    }
+
+    .btn-block {
+        width: 100%;
+        padding: 0.85rem 1.5rem;
+        font-size: 1rem;
+        margin-top: 0.75rem;
+    }
+
+    .btn-spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(46, 16, 101, 0.2);
+        border-top-color: var(--purple-950);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    .login-footer {
+        margin-top: 2rem;
+        text-align: center;
+        font-size: 0.78rem;
+        color: var(--text-light);
+        border-top: 1px solid var(--border-card);
+        padding-top: 1.25rem;
+    }
+</style>
+
+@code {
+    private LoginRequest model = new();
+    private bool isLoading;
+    private string? errorMessage;
+
+    private async Task HandleLogin()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        var result = await AuthService.LoginAsync(model);
+
+        if (result.Success)
+        {
+            Navigation.NavigateTo("/");
+            return;
+        }
+
+        errorMessage = result.Error;
+        isLoading = false;
+    }
+}

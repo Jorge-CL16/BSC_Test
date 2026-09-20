@@ -2,26 +2,26 @@
   {
     "date": "2022-01-06",
     "temperatureC": 1,
-    "summary": "Freezing"
+    "summary": "Helado"
   },
   {
     "date": "2022-01-07",
     "temperatureC": 14,
-    "summary": "Bracing"
+    "summary": "Fresco"
   },
   {
     "date": "2022-01-08",
     "temperatureC": -13,
-    "summary": "Freezing"
+    "summary": "Helado"
   },
   {
     "date": "2022-01-09",
     "temperatureC": -16,
-    "summary": "Balmy"
+    "summary": "Templado"
   },
   {
     "date": "2022-01-10",
     "temperatureC": -2,
-    "summary": "Chilly"
+    "summary": "Frío"
   }
 ]

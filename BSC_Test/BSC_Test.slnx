@@ -1,1 +1,6 @@
-<Solution />
+<Solution>
+  <Project Path="BSC.Api/BSC.Api.csproj" Id="9cda3a25-2f43-41da-b328-73da92458bbb" />
+  <Project Path="BSC.BusinessLogic/BSC.BusinessLogic.csproj" />
+  <Project Path="BSC.DataAccess/BSC.DataAccess.csproj" />
+  <Project Path="BSC.UI/BSC.UI.csproj" />
+</Solution>

@@ -1,25 +1,25 @@
 ﻿@page "/weather"
 @inject HttpClient Http
 
-<PageTitle>Weather</PageTitle>
+<PageTitle>Clima</PageTitle>
 
-<h1>Weather</h1>
+<h1>Clima</h1>
 
-<p>This component demonstrates fetching data from the server.</p>
+<p>Este componente muestra cómo obtener datos del servidor.</p>
 
 @if (forecasts == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>Cargando...</em></p>
 }
 else
 {
     <table class="table">
         <thead>
             <tr>
-                <th>Date</th>
-                <th aria-label="Temperature in Celsius">Temp. (C)</th>
-                <th aria-label="Temperature in Fahrenheit">Temp. (F)</th>
-                <th>Summary</th>
+                <th>Fecha</th>
+                <th aria-label="Temperatura en Celsius">Temp. (C)</th>
+                <th aria-label="Temperatura en Fahrenheit">Temp. (F)</th>
+                <th>Resumen</th>
             </tr>
         </thead>
         <tbody>
